@@ -16,7 +16,7 @@ app = Flask(__name__)
 
 @app.route('/', methods=['GET'])
 def home():
-    return render_template('index2.html')
+    return render_template('index3.html')
 
 @app.route('/receive', methods=['POST'])
 def receive_terms():
@@ -33,11 +33,11 @@ def receive_terms():
     if not text:
         text = request.form.get('textarea')
         if not text or text.strip() == "":
-            return render_template('index2.html', error="No input provided.")
+            return render_template('index3.html', error="No input provided.")
 
     # Summarize and show result
     summary = summarize_text(text)
-    return render_template('index2.html', summary=summary)
+    return render_template('index3.html', summary=summary)
 def extract_text(file):
        # Check if the file is a PDF
        if file.filename.endswith('.pdf'):
