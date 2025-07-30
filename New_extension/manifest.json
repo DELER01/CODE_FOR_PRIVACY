@@ -1,0 +1,10 @@
+{
+  "manifest_version": 3,
+  "name": "Terms Scanner",
+  "version": "1.0",
+  "permissions": ["scripting", "activeTab"],
+  "host_permissions": ["<all_urls>", "http://localhost:5000/*"],
+  "action": {
+    "default_popup": "popup.html"
+  }
+}

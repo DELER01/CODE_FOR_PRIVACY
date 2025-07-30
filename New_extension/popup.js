@@ -1,0 +1,36 @@
+document.getElementById("scanBtn").addEventListener("click", async () => {
+  let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+
+  chrome.scripting.executeScript({
+    target: { tabId: tab.id },
+    function: extractAndSendTerms
+  });
+});
+
+function extractAndSendTerms() {
+  let paragraphs = document.querySelectorAll('p');
+  let termsText = "";
+  paragraphs.forEach(p => {
+    
+      termsText += p.innerText + "\n";
+    
+  });
+
+  if (termsText.length < 10) {
+    alert("No Terms found on this page.");
+    return;
+  }
+
+  fetch("http://localhost:5000/receive", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ terms: termsText })
+  })
+  .then(res => res.json())
+  .then(data => {
+    alert("✅ Server says: " + data.message);
+  })
+  .catch(err => {
+    alert("❌ Error sending terms: " + err.message);
+  });
+}
