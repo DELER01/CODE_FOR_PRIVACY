@@ -17,7 +17,7 @@ load_dotenv()
 API_URL = "https://api-inference.huggingface.co/models/facebook/bart-large-cnn"
 headers = {"Authorization": f"Bearer {os.getenv('HF_API_KEY')}"}
 
-app = Flask(__name__)
+app = Flask(__name__,template_folder="templates")
 
 @app.route('/', methods=['GET'])
 def home():
