@@ -9,35 +9,70 @@ from dotenv import load_dotenv
 
 
 
+load_dotenv()
+
+
+
 
 API_URL = "https://api-inference.huggingface.co/models/facebook/bart-large-cnn"
 headers = {"Authorization": f"Bearer {os.getenv('HF_API_KEY')}"}
-app = Flask(__name__)
+
+app = Flask(__name__, template_folder="templates")
 
 @app.route('/', methods=['GET'])
 def home():
     return render_template('index3.html')
 
-@app.route('/receive', methods=['POST'])
-def receive_terms():
 
+@app.route("/receive", methods=["POST"])
+def receive_terms():
     text = ""
 
-    # 1. Try to get uploaded file
+    # 1. Try file input
     if 'file' in request.files:
         file = request.files['file']
         if file and file.filename != '':
             text = extract_text(file)
 
-    # 2. If no file, try textarea input
+    # 2. Try textarea
     if not text:
-        text = request.form.get('textarea')
-        if not text or text.strip() == "":
-            return render_template('index3.html', error="No input provided.")
+        textarea_input = request.form.get("textarea")
+        if textarea_input and textarea_input.strip() != "":
+            text = textarea_input.strip()
 
-    # Summarize and show result
+    # 3. Try URL
+    if not text:
+        url = request.form.get("url")
+        if url and url.strip() != "":
+            text = extract_text_from_url(url.strip())
+            if not text:
+                return render_template("index3.html", error="Could not extract content from URL.")
+
+    if not text:
+        return render_template("index3.html", error="No input provided.")
+
     summary = summarize_text(text)
-    return render_template('index3.html', summary=summary)
+    summary2 = summarize_text(summary)
+    summary3 = summarize_text(summary2)
+
+    return render_template("index3.html", summary=summary3)
+
+
+def extract_text_from_url(url):
+    try:
+        response = requests.get(url, timeout=5)
+        soup = BeautifulSoup(response.text, 'html.parser')
+
+        # Remove scripts, styles, and navs for cleaner content
+        for tag in soup(['script', 'style', 'nav', 'footer', 'header']):
+            tag.decompose()
+
+        # Join all visible text
+        text = ' '.join(soup.stripped_strings)
+        return text
+    except Exception as e:
+        print(f"Error fetching URL: {e}")
+        return ""
 def extract_text(file):
        # Check if the file is a PDF
        if file.filename.endswith('.pdf'):
