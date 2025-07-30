@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html>
+  
+<head>
+    <title>Terms Summarizer</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+<body>
+  
+  <div class="container">
+    <h2>Summarize Terms & Conditions</h2>
+
+    <form id="summarize-form" action="/receive" method="POST" enctype="multipart/form-data">
+       <div class="tabs">
+  <input type="radio" name="tab" id="tab1" checked>
+  <label for="tab1"><i class="fas fa-align-left"></i> Text</label>
+
+  <input type="radio" name="tab" id="tab2">
+  <label for="tab2"><i class="fas fa-link"></i> URL</label>
+
+  <input type="radio" name="tab" id="tab3">
+  <label for="tab3"><i class="fas fa-file-pdf"></i> File</label>
+
+  <div class="tab-content" id="content1">
+    <textarea name="textarea" placeholder="Paste your text here..."></textarea>
+  </div>
+
+  <div class="tab-content" id="content2">
+  <div class="url-input">
+    <input type="url" name="url" placeholder="Paste URL here..." />
+  </div>
+  </div>
+
+
+  <div class="tab-content" id="content3">
+  <label for="file-upload" class="custom-file-upload">
+    <i class="fas fa-cloud-upload-alt"></i>
+    <span>Drag & drop PDF or <strong>click to select</strong></span>
+    <input id="file-upload" type="file" name="file" accept=".pdf" />
+  </label>
+  </div>
+
+  <button type="submit" id="summarize-btn">Summarize</button>
+   <span id="btn-text">Summarize</span>
+    <span id="btn-spinner" class="spinner" style="display: none;">⏳</span>
+  </button>
+</form>
+
+
+    {% if error %}
+        <p style="color: red;">{{ error }}</p>
+    {% endif %}
+
+    {% if summary %}
+     <div class="summary-box">
+  <div class="summary-header">
+    <span class="summary-title">Summary</span>
+    <button onclick="copySummary()" id="copy-btn">📋 Copy</button>
+  </div>
+  <textarea id="summary-text" readonly>{{ summary }}</textarea>
+  </div>
+
+    {% endif %}
+  </div>
+ 
+  
+</body>
+</html>
+
+<script>
+  const form = document.getElementById("summarize-form");
+  const btn = document.getElementById("summarize-btn");
+  const btnText = document.getElementById("btn-text");
+  const btnSpinner = document.getElementById("btn-spinner");
+
+  form.addEventListener("submit", () => {
+    btn.disabled = true;
+    btnText.textContent = "Processing…";
+    btnSpinner.style.display = "inline";
+  });
+
+  function copySummary() {
+    const summaryText = document.getElementById("summary-text");
+    summaryText.select();
+    document.execCommand("copy");
+    alert("Summary copied to clipboard!");
+  }
+</script>
+
+
+
+<style>
+  * {
+    box-sizing: border-box;
+  }
+
+  html, body {
+    max-width: 100%;
+    overflow-x: hidden;
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(rgba(230, 240, 255, 0.95), rgba(230, 240, 255, 0.95)), url("{{ url_for('static', filename='images/images3.jpg')}}");
+    font-family: sans-serif;
+    background-size: cover;
+    display:flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 40px;
+    }
+  
+  h2 {
+    font-size: 2rem;
+    color: #003366;
+    margin-bottom: 1rem;
+  }  
+  .container {
+    max-width: 800px;
+    margin: 30px auto;
+    padding: 30px;
+    box-shadow: 0 0 12px rgba(0,0,0,0.1);
+    border-radius: 12px;
+    background: white;
+  }
+
+  textarea {
+    width: 100%;
+    height: 200px;
+    padding: 15px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background: #f9f9f9;
+    resize: vertical;
+  }
+
+  button {
+    margin-top: 10px;
+    padding: 10px 20px;
+    background-color: #0066cc;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+
+  button:hover {
+    cursor: pointer;
+    background-color: #0052a3;
+  }
+
+  input[type="file"] {
+    margin-top: 15px;
+  }
+
+  .summary-box {
+    background: #f4faff;
+    padding: 15px;
+    border: 1px solid #cce0f5;
+    color: #003366;
+    border-radius: 8px;
+    margin-top: 10px;
+    white-space: pre-wrap; /* This wraps long lines in <pre> */
+    word-wrap: break-word;  /* Ensures long words wrap too */
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
+  
+  .tabs {
+  max-width: 400px;
+  margin: auto;
+  text-align: center;
+  position: relative;
+}
+
+.tabs input[type="radio"] {
+  display: none;
+}
+
+.tabs label {
+  display: inline-block;
+  padding: 10px 20px;
+  margin: 0;
+  cursor: pointer;
+  border-radius: 20px;
+  background: #eee;
+  transition: background 0.3s ease;
+}
+
+.tabs input[type="radio"]:checked + label {
+  background: linear-gradient(to right, #00c6ff, #0072ff);
+  color: white;
+}
+
+.tab-content {
+  display: none;
+  margin-top: 20px;
+  margin-top: 1.5rem;
+  width: 100%;
+}
+
+
+#tab1:checked ~ #content1,
+#tab2:checked ~ #content2,
+#tab3:checked ~ #content3 {
+  display: block;
+  animation: fadeIn 0.4s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.url-input input[type="url"] {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 1rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.custom-file-upload {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed #ccc;
+  padding: 2rem;
+  border-radius: 10px;
+  cursor: pointer;
+  color: #666;
+  font-size: 1rem;
+  transition: 0.2s ease-in-out;
+  text-align: center;
+}
+.custom-file-upload:hover {
+  border-color: #666;
+  background-color: #f9f9f9;
+}
+.custom-file-upload i {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+.custom-file-upload input[type="file"] {
+  display: none;
+}
+
+
+.tab-content {
+  margin-top: 1.5rem;
+  width: 100%;
+}
+textarea, input[type="url"] {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+#summarize-btn {
+    padding: 10px 20px;
+    background-color: #4b6cb7;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+
+  #summarize-btn:disabled {
+    background-color: #999;
+    cursor: not-allowed;
+  }
+
+  .spinner {
+    margin-left: 8px;
+  }
+
+
+  #summary-text {
+    width: 100%;
+    height: 200px;
+    padding: 10px;
+    font-size: 14px;
+  }
+
+  #copy-btn {
+    margin-top: 10px;
+    padding: 6px 12px;
+    border: none;
+    background: #007BFF;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+   .summary-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+   .summary-box {
+    margin-top: 20px;
+    padding: 15px;
+    border: 1px solid #ccc;
+    background: #fefefe;
+    border-radius: 8px;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.06);
+  }
+  
+  .summary-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  .summary-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+  }
+
+  #summary-text {
+    width: 100%;
+    height: 180px;
+    resize: vertical;
+    padding: 10px;
+    font-size: 14px;
+    font-family: 'Segoe UI', sans-serif;
+    background: #fafafa;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+  }
+
+  #copy-btn {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+  }
+
+  #copy-btn:hover {
+    background-color: #0056b3;
+  }
+
+
+
+</style>
